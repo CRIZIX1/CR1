@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>منصة SHL الرقمية</title>
+  <style>
+    body {
+      background: linear-gradient(120deg, #000000, #0f2027);
+      color: white;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #111;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    #main {
+      padding: 20px;
+    }
+    .box {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #0077ff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #admin-panel, #client-panel, #order-panel, #basket-panel {
+      display: none;
+    }
+    .admin-order {
+      border-bottom: 1px solid #444;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+    }
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>مرحباً بكم بمنصة SHL الرقمية</header>
+
+<div class="top-right">
+  <button onclick="showAdminLogin()">الإدمن</button>
+  <button onclick="showBasket()">السلة</button>
+</div>
+
+<div id="main">
+  <div class="box">
+    <h2>قسم ماب السرقة</h2>
+    <p>الكمية المتبقية: <span id="quantity">6</span></p>
+    <button onclick="showClientPanel()">شراء حساب عشوائي</button>
+  </div>
+
+  <div id="client-panel" class="box">
+    <h3>أرسل دليل التحويل</h3>
+    <input type="file" id="proofInput"><br><br>
+    <button onclick="submitOrder()">إرسال</button>
+  </div>
+
+  <div id="admin-login" class="box">
+    <h3>أدخل كلمة المرور</h3>
+    <input type="password" id="admin-pass"><br><br>
+    <button onclick="checkPassword()">دخول</button>
+  </div>
+
+  <div id="admin-panel" class="box">
+    <h3>طلبات العملاء</h3>
+    <div id="orders"></div>
+  </div>
+
+  <div id="basket-panel" class="box">
+    <h3>طلبك</h3>
+    <p id="basket-content">لا يوجد طلب مقبول حتى الآن.</p>
+  </div>
+</div>
+
+<script>
+  let orderImage = null;
+  let orderAccepted = false;
+  let quantity = 6;
+  const accountList = ["hhhwg7717"];
+
+  function updateQuantityDisplay() {
+    document.getElementById("quantity").innerText = quantity;
+  }
+
+  function showClientPanel() {
+    if (quantity <= 0) {
+      alert("عذرًا، الكمية انتهت.");
+      return;
+    }
+    document.getElementById('client-panel').style.display = 'block';
+  }
+
+  function showAdminLogin() {
+    document.getElementById('admin-login').style.display = 'block';
+  }
+
+  function checkPassword() {
+    const pass = document.getElementById('admin-pass').value;
+    if (pass === 'Mm112233') {
+      document.getElementById('admin-panel').style.display = 'block';
+      document.getElementById('admin-login').style.display = 'none';
+      showOrderInAdmin();
+    } else {
+      alert('كلمة المرور خاطئة!');
+    }
+  }
+
+  function submitOrder() {
+    const fileInput = document.getElementById('proofInput');
+    if (fileInput.files.length === 0) {
+      alert("الرجاء رفع صورة دليل التحويل");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      orderImage = e.target.result;
+      alert("تمت العملية، الرجاء انتظار تأكيد الدفع");
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  }
+
+  function showOrderInAdmin() {
+    if (!orderImage) {
+      document.getElementById('orders').innerHTML = "<p>لا يوجد طلبات حالياً</p>";
+      return;
+    }
+
+    document.getElementById('orders').innerHTML = `
+      <div class="admin-order">
+        <img src="${orderImage}" alt="صورة التحويل" width="200"><br><br>
+        <button onclick="acceptOrder()">قبول الطلب</button>
+        <button onclick="rejectOrder()">رفض الطلب</button>
+      </div>
+    `;
+  }
+
+  function acceptOrder() {
+    if (quantity <= 0) {
+      alert("لا يمكن القبول، الكمية انتهت.");
+      return;
+    }
+
+    orderAccepted = true;
+    orderImage = null;
+    quantity--;
+    updateQuantityDisplay();
+
+    document.getElementById('orders').innerHTML = "<p>تم قبول الطلب.</p>";
+  }
+
+  function rejectOrder() {
+    orderImage = null;
+    orderAccepted = false;
+    document.getElementById('orders').innerHTML = "<p>تم رفض الطلب.</p>";
+  }
+
+  function showBasket() {
+    document.getElementById('basket-panel').style.display = 'block';
+    if (orderAccepted && quantity >= 0) {
+      document.getElementById('basket-content').innerText = "الحساب الخاص بك: " + accountList[0];
+    } else {
+      document.getElementById('basket-content').innerText = "لا يوجد طلب مقبول حتى الآن.";
+    }
+  }
+
+  updateQuantityDisplay();
+</script>
+
+</body>
+</html>
